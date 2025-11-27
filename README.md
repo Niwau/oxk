@@ -35,9 +35,9 @@ The default broker endpoint is `localhost:9092`. You can change it using the `-b
 See which topics exist in your cluster.
 
 ```bash
-oxk list
+oxk topic list
 
-oxk -b "kafka-prod:9092" list
+oxk -b "kafka-prod:9092" topic list
 ```
 
 ### 2\. Produce Messages
@@ -45,14 +45,14 @@ oxk -b "kafka-prod:9092" list
 **Simple Send (Key/Value):**
 
 ```bash
-oxk produce -t my-topic -k "id-123" -p "json payload here"
+oxk topic produce my-topic -k "id-123" -p "json payload here"
 ```
 
 **Send from File:**
 Useful for large payloads or complex JSONs.
 
 ```bash
-oxk produce -t my-topic -f ./payload.json
+oxk topic produce my-topic -f ./payload.json
 ```
 
 ### 3\. Consume Messages
@@ -60,13 +60,13 @@ oxk produce -t my-topic -f ./payload.json
 Starts a consumer in the default group `oxk-group`.
 
 ```bash
-oxk consume -t my-topic
+oxk topic consume my-topic
 ```
 
 **Custom Consumer Group:**
 
 ```bash
-oxk consume -t my-topic -g "debug-group"
+oxk topic consume my-topic -g "debug-group"
 ```
 
 ## 🤝 Contributing

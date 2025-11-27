@@ -12,49 +12,65 @@ struct Args {
 
 #[derive(Subcommand)]
 enum Commands {
+    Topic {
+        #[command(subcommand)]
+        command: TopicCommands,
+    },
+}
+
+#[derive(Subcommand)]
+enum TopicCommands {
+    List,
     Produce {
-        #[arg(short, long)]
-        topic: String,
+        /// Name of the topic to produce to
+        name: String,
+        /// Optional key for the message
         #[arg(short, long)]
         key: Option<String>,
+        /// Optional payload for the message
         #[arg(short, long)]
         payload: Option<String>,
+        /// Optional file to read the payload from
         #[arg(short, long)]
         file: Option<String>,
     },
     Consume {
-        #[arg(short, long)]
-        topic: String,
+        /// Name of the topic to consume from
+        name: String,
+        /// Consumer group ID
         #[arg(short, long, default_value = "oxk-group")]
         group: String,
     },
-    List,
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
-    match &args.command {
-        Commands::Produce {
-            topic,
-            key,
-            payload,
-            file,
-        } => {
-            commands::produce(
-                &args.brokers,
-                topic,
-                key.as_ref(),
-                payload.as_ref(),
-                file.as_ref(),
-            )
-            .await?
-        }
-        Commands::Consume { topic, group } => {
-            commands::consume(&args.brokers, group, topic).await?
-        }
-        Commands::List => commands::list_topics(&args.brokers).await?,
+    match args.command {
+        Commands::Topic { command } => match command {
+            TopicCommands::List => {
+                commands::topic::list(&args.brokers).await?;
+            }
+            TopicCommands::Produce {
+                name,
+                key,
+                payload,
+                file,
+            } => {
+                commands::topic::produce(
+                    &args.brokers,
+                    &name,
+                    key.as_ref(),
+                    payload.as_ref(),
+                    file.as_ref(),
+                )
+                .await?;
+            }
+            TopicCommands::Consume { name, group } => {
+                commands::topic::consume(&args.brokers, &group, &name).await?;
+            }
+        },
     }
 
     Ok(())
